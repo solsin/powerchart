@@ -21,23 +21,25 @@ import dogani.powerchart.chart.ChartHandler;
 public class ChartController {
 	@Autowired
 	ChartHandler chartCreator;
-	
-	@RequestMapping(value = "/create/{chartId}", method = {RequestMethod.GET}, produces = "application/json; chartset=UTF-8")
+
+	@RequestMapping(value = "/create/{chartId}", method = {
+	    RequestMethod.GET }, produces = "application/json; chartset=UTF-8")
 	@ResponseBody
-	public Object render(HttpServletRequest request, @PathVariable("chartId") String chartId) {
+	public Object render(HttpServletRequest request, @PathVariable("chartId") String chartId) throws Exception {
 		JFreeChart chart = chartCreator.create();
 		request.getSession().setAttribute(chartId, chart);
-		
+
 		return chartId;
 	}
-	
-	@RequestMapping(value = "/render/{chartId}", method = {RequestMethod.GET }, produces = "image/png")
+
+	@RequestMapping(value = "/render/{chartId}", method = { RequestMethod.GET }, produces = "image/png")
 	@ResponseBody
-	public void render(HttpServletRequest request, HttpServletResponse response, @PathVariable("chartId") String chartId) throws IOException {
-		JFreeChart chart = (JFreeChart)request.getSession().getAttribute(chartId);
+	public void render(HttpServletRequest request, HttpServletResponse response, @PathVariable("chartId") String chartId)
+	    throws IOException {
+		JFreeChart chart = (JFreeChart) request.getSession().getAttribute(chartId);
 		ChartHandler.stream(chart, response);
 	}
-	
+
 	@RequestMapping(value = "/page/{chartId}")
 	public String page(@PathVariable("chartId") String chartId, Map<String, Object> model) throws IOException {
 		model.put("chartId", chartId);

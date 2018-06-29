@@ -48,11 +48,13 @@ dependencies {
 		"org.springframework.boot:spring-boot-starter-web",
 		"org.springframework.boot:spring-boot-starter-thymeleaf",
 		"org.springframework.boot:spring-boot-devtools",
-		[group: "org.projectlombok", name:"lombok", version: "1.16.0"],
-		[group: "org.slf4j", name: "slf4j-api", version: "1.7.25"],
-		[group: "ch.qos.logback", name: "logback-classic", version: "1.2.3"],
-		[group: "ch.qos.logback", name: "logback-core", version: "1.2.3"],
-		"org.jfree:jfreechart:1.5.0"
+		"org.projectlombok:lombok:1.16.0",
+		"org.slf4j:slf4j-api:1.7.25",
+		"ch.qos.logback:logback-classic:1.2.3",
+		"ch.qos.logback:logback-core:1.2.3",
+		"org.jfree:jfreechart:1.5.0",
+		"org.apache.commons:commons-lang3:3.3.2",
+		"joda-time:joda-time:2.10"
 	)
 	testCompile("org.springframework.boot:spring-boot-starter-test")
 }
