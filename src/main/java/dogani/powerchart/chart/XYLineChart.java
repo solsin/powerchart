@@ -25,11 +25,22 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class XYLineChart {
-	public JFreeChart create() throws Exception {
-		String title = "powerchart";
+	private File[] logFiles;
+	
+	public JFreeChart create(File[] logFiles) throws Exception {
+		this.logFiles = logFiles;
+		
+		String title = "Dogani Powerchart";
 		String categoryAxisLabel = "time";
 		String valueAxisLabel = "power";
-		XYDataset dataset = createDataset();
+		
+		TimeSeriesCollection dataset = new TimeSeriesCollection();
+		for(File file: logFiles) {
+			TimeSeries series = new TimeSeries(file.getName());
+			addDatasetFromLog(file, series);
+			dataset.addSeries(series);
+		}
+		
 		JFreeChart chart = ChartFactory.createXYLineChart(title, categoryAxisLabel, // x-axis label
 		    valueAxisLabel, // y-axis label
 		    dataset, PlotOrientation.VERTICAL, true, // legend
@@ -47,23 +58,10 @@ public class XYLineChart {
 		return chart;
 	}
 
-	private XYDataset createDataset() throws Exception {
-//		XYSeriesCollection dataset = new XYSeriesCollection();
-//		XYSeries series1 = new XYSeries("Object 1");
-		TimeSeriesCollection dataset = new TimeSeriesCollection();
-		TimeSeries series1 = new TimeSeries("Data");
-
-		addDatasetFromLog(series1);
-		dataset.addSeries(series1);
-
-		return dataset;
-	}
-
-	private void addDatasetFromLog(TimeSeries timeSeries) throws Exception {
+	private void addDatasetFromLog(File file, TimeSeries timeSeries) throws Exception {
 		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
 
-		File file = new File("D:\\Develop\\workspace\\powerchart\\data\\test.tcx");
 		Document doc = dBuilder.parse(file);
 
 		doc.getDocumentElement().normalize();

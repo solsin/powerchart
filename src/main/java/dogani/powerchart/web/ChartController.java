@@ -1,5 +1,6 @@
 package dogani.powerchart.web;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 
@@ -7,7 +8,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.jfree.chart.JFreeChart;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,14 +19,15 @@ import dogani.powerchart.chart.ChartHandler;
 @Controller
 @RequestMapping(value = "/chart")
 public class ChartController {
-	@Autowired
-	ChartHandler chartCreator;
-
 	@RequestMapping(value = "/create/{chartId}", method = {
 	    RequestMethod.GET }, produces = "application/json; chartset=UTF-8")
 	@ResponseBody
 	public Object render(HttpServletRequest request, @PathVariable("chartId") String chartId) throws Exception {
-		JFreeChart chart = chartCreator.create();
+		ChartHandler chartHandler = new ChartHandler();
+		
+		File[] files = new File[] {new File("D:\\Develop\\workspace\\powerchart\\data\\test.tcx")};
+		
+		JFreeChart chart = chartHandler.create(files);
 		request.getSession().setAttribute(chartId, chart);
 
 		return chartId;

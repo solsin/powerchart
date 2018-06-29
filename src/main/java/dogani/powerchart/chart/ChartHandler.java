@@ -2,6 +2,7 @@ package dogani.powerchart.chart;
 
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 
@@ -9,16 +10,14 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.jfree.chart.ChartUtils;
 import org.jfree.chart.JFreeChart;
-import org.springframework.stereotype.Service;
 
 import lombok.extern.slf4j.Slf4j;
 
-@Service
 @Slf4j
 public class ChartHandler {
-	public JFreeChart create() throws Exception {
+	public JFreeChart create(File[] logFiles) throws Exception {
 		XYLineChart xyLineChart = new XYLineChart();
-		return xyLineChart.create();
+		return xyLineChart.create(logFiles);
 	}
 	
 	public static void stream(JFreeChart chart, HttpServletResponse response) throws IOException {
