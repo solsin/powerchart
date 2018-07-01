@@ -19,28 +19,45 @@ import dogani.powerchart.data.LogExtractor;
 public class AmChartController {
 	@RequestMapping(value = "/page/{chartId}")
 	public String page(@PathVariable("chartId") String chartId, Map<String, Object> model) throws Exception {
-//		LogExtractor extractor = new LogExtractor();
-//		ChartContainer container = extractor.extract(chartId);
-		
+		// LogExtractor extractor = new LogExtractor();
+		// ChartContainer container = extractor.extract(chartId);
+
 		model.put("chartId", chartId);
-//		model.put("chartCotainer", container);
-		
+		// model.put("chartCotainer", container);
+
 		return "amchart/page";
 	}
-	
+
 	@RequestMapping(value = "/data/{chartId}", method = RequestMethod.GET, produces = "application/json")
 	@ResponseBody
 	public ChartContainer data(HttpServletRequest request, @PathVariable("chartId") String chartId) throws Exception {
 		HttpSession session = request.getSession();
-		ChartContainer container = (ChartContainer)session.getAttribute(ChartContainer.class.getName());
-		
+		ChartContainer container = (ChartContainer) session.getAttribute(ChartContainer.class.getName());
+
 		if (container == null) {
 			LogExtractor extractor = new LogExtractor();
 			container = extractor.extract(chartId);
 			session.setAttribute(ChartContainer.class.getName(), container);
 		}
 
+		return container;
+	}
+
+	@RequestMapping(value = "/generate/{chartId}", method = RequestMethod.GET, produces = "application/json")
+	@ResponseBody
+	public ChartContainer generate(HttpServletRequest request, @PathVariable("chartId") String chartId)
+			throws Exception {
+		HttpSession session = request.getSession();
+		LogExtractor extractor = new LogExtractor();
 		
+		Map<String, String[]> map = request.getParameterMap();
+		map.forEach((k,v)->{
+			extractor.addTimeAdjust(k, Integer.parseInt(v[0]));
+		});
+		
+		ChartContainer container = extractor.extract(chartId);
+		session.setAttribute(ChartContainer.class.getName(), container);
+
 		return container;
 	}
 }

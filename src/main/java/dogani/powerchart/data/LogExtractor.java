@@ -1,6 +1,12 @@
 package dogani.powerchart.data;
 
 import java.io.File;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -14,23 +20,35 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class LogExtractor {
+	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+	Calendar calendar;
+	Map<String, Integer> timeAdjust = new HashMap<>();
+	
 	public LogExtractor() {
-		
+		calendar = Calendar.getInstance();
+	}
+	
+	public void addTimeAdjust(String key, int value) {
+		timeAdjust.put(key, value);
 	}
 	
 	public ChartContainer extract(String folder) throws Exception {
 		ChartContainer container = new ChartContainer();
 		File dir = new File("C:/Develop/workspace/powerchart/data", folder);
 		File[] files = dir.listFiles();
+		container.filenum = files.length;
+		int index = 0;
+		
 		for (File file : files) {
  			container.filenames.add(file.getName());
-			addDatasetFromLog(file, container);
+			addDatasetFromLog(file, index, container);
+			index++;
 		}
 		
 		return container;
 	}
 
-	private void addDatasetFromLog(File file, ChartContainer container) throws Exception {
+	private void addDatasetFromLog(File file, int index, ChartContainer container) throws Exception {
 		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
 
@@ -39,17 +57,19 @@ public class LogExtractor {
 		doc.getDocumentElement().normalize();
 
 		NodeList nodeList = doc.getElementsByTagName("Trackpoint");
+		int adjusted = timeAdjust.get(file.getName()) == null ? 0 : timeAdjust.get(file.getName());
+		
 		for (int i = 0; i < nodeList.getLength(); i++) {
 			Node node = nodeList.item(i);
 			NodeList childNodeList = node.getChildNodes();
 
-			RideLog rideLog = extractRideLog(childNodeList);
+			RideLog rideLog = extractRideLog(childNodeList, adjusted);
 			log.info("time:{}, convertedDay:{}, watt:{}", rideLog.time, rideLog.watt);
-			container.add(rideLog.time, rideLog.watt);
+			container.add(rideLog.time, index, rideLog.watt);
 		}
 	}
 	
-	private RideLog extractRideLog(NodeList trackNode) {
+	private RideLog extractRideLog(NodeList trackNode, int timeAdjust) throws ParseException {
 		RideLog log = new RideLog();
 		for (int i = 0; i < trackNode.getLength(); i++) {
 			Node node = trackNode.item(i);
@@ -58,9 +78,16 @@ public class LogExtractor {
 			if ("Time".equals(name)) {
 //				log.time = value.substring(11, value.length() - 1);
 				if (value.length() == "2018-06-29T23:41:47.000Z".length()) {
-					value = value.substring(0, "2018-06-29T23:41:47".length())+"Z";
+					value = value.substring(0, "2018-06-29T23:41:47".length());
+				} else {
+					value = value.substring(0, value.length()-1);
 				}
-				log.time = value;
+				value = value.replaceAll("T", " ");
+				Date date = sdf.parse(value);
+				calendar.setTime(date);
+				calendar.add(Calendar.SECOND, timeAdjust);
+				log.time = sdf.format(calendar.getTime());
+				
 			} else if ("DistanceMeters".equals(name)) {
 				log.distance = NumberUtils.toDouble(value);
 			} else if ("HeartRateBpm".equals(name)) {

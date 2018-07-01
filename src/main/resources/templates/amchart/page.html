@@ -107,6 +107,31 @@ function renderChart(chartData) {
 	            var value = graphDataItem.values.value;
 	            return value + "w";
 	          }
+	    },
+	    {
+	        "id": chartData.filenames[2],
+	        "balloonText": "[[value]]",
+	        "legendValueText": "[[value]]",
+	        "bullet": "round",
+	        "bulletBorderAlpha": 2,
+	        "lineColor": "#FFA500",
+	        "bulletColor": "#FFA500",
+	        "hideBulletsCount": 50,
+	        "title": chartData.filenames[2],
+	        "valueField": "visits3",
+	        "useLineColorForBulletBorder": true,
+	        "balloon":{
+	            "drop":false
+	        },
+            /*"balloon":{
+                "drop":true,
+                "adjustBorderColor":false,
+                "color":"#ffffff"
+            },*/
+	        "balloonFunction": function(graphDataItem, graph) {
+	            var value = graphDataItem.values.value;
+	            return value + "w";
+	          }
 	    }
 	    ],
 	    "chartScrollbar": {
@@ -138,7 +163,12 @@ function renderChart(chartData) {
 // this method is called when chart is first inited as we listen for "rendered" event
 function zoomChart(chart, chartData) {
     // different zoom methods can be used - zoomToIndexes, zoomToDates, zoomToCategoryValues
-    chart.zoomToIndexes(chartData.length - 40, chartData.length - 1);
+    if (chartData) {
+    	chart.zoomToIndexes(chartData.length - 40, chartData.length - 1);
+    } else {
+    	console.log("chartData is undefined");
+    }
+    
 }
 
 // generate some random data, quite different range
@@ -193,11 +223,15 @@ function generateChartData(data) {
     for(i = 0; i < data.chartData.length; i++) {
     	var data1 = 0;
     	var data2 = 0;
+    	var data3 = 0;
     	if (data.chartData[i].datas[0]) {
     		data1 = data.chartData[i].datas[0];
     	}
     	if (data.chartData[i].datas[1]) {
     		data2 = data.chartData[i].datas[1];
+    	}
+    	if (data.chartData[i].datas[2]) {
+    		data3 = data.chartData[i].datas[2];
     	}
         chartData.data.push({
             //date: new Date(data.chartData[i].date),
@@ -205,6 +239,7 @@ function generateChartData(data) {
             date: data.chartData[i].date,
             visits1: data1,
             visits2: data2,
+            visits3: data3,
         });
     }
     
