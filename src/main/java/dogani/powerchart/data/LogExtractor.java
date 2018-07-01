@@ -75,6 +75,7 @@ public class LogExtractor {
 			RideLog rideLog = extractRideLog(childNodeList, adjusted);
 			log.info("time:{}, convertedDay:{}, watt:{}", rideLog.time, rideLog.watt);
 			container.add(rideLog.time, index, rideLog.watt);
+//			container.add(i, index, rideLog.time, rideLog.watt);
 		}
 	}
 	

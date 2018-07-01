@@ -1,7 +1,9 @@
 package dogani.powerchart.data;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -17,6 +19,10 @@ public class ChartContainer {
 	
 	@JsonIgnore
 	Map<String, ChartData> dataMap = new TreeMap<>();
+	
+	@JsonIgnore
+	List<ChartData> dataList = new ArrayList<>();
+	
 	public int filenum;
 	
 	public void add(String date, int index, Double data) {
@@ -34,14 +40,34 @@ public class ChartContainer {
 		chartData.datas[index] = data;
 	}
 	
+	public void add(int num, int index, String date, Double data) {
+		ChartData chartData;
+		if (dataList.size() == num) {
+			chartData = new ChartData();
+			chartData.date = date;
+			chartData.datas = new Double[filenum];
+			for(int i=0; i<filenum; i++) {
+				chartData.datas[i] = 0D;
+			}
+			dataList.add(chartData);
+		} else {
+			chartData = dataList.get(num); 
+		}
+		chartData.datas[index] = data;
+	}
+	
 	@JsonGetter
 	public Collection<ChartData> getChartData() {
-		LinkedList<ChartData> datas = new LinkedList<>();
-		
-		dataMap.forEach((k,v)->{
-			datas.add(v);
-		});
-		
-		return datas;
+		if (dataList.size() == 0) {
+			LinkedList<ChartData> datas = new LinkedList<>();
+			
+			dataMap.forEach((k,v)->{
+				datas.add(v);
+			});
+			
+			return datas;
+		} else {
+			return dataList;
+		}
 	}
 }
