@@ -1,0 +1,219 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<title>Spring Boot Thymeleaf AmChart</title>
+
+<!-- Styles -->
+<style>
+#chartdiv {
+	width	: 100%;
+	height	: 500px;
+	marginTop : 220;
+}																	
+</style>
+<link rel="stylesheet" href="https://www.amcharts.com/lib/3/plugins/export/export.css" type="text/css" media="all" />
+
+</head>
+<body>
+<p th:text="'Power Chart For '+${chartId}"></p>
+	
+<!-- <img th:src="'/chart/render/'+${chartId}"/> -->
+
+<!-- Resources -->
+<!-- 
+<script src="https://www.amcharts.com/lib/3/amcharts.js"></script>
+<script src="https://www.amcharts.com/lib/3/serial.js"></script>
+<script src="https://www.amcharts.com/lib/3/plugins/export/export.min.js"></script>
+<script src="https://www.amcharts.com/lib/3/themes/light.js"></script>
+ -->
+<script src="/amcharts/amcharts.js"></script>
+<script src="/amcharts/serial.js"></script>
+<script src="/amcharts/plugins/export/export.min.js"></script>
+<script src="/amcharts/themes/light.js"></script>
+<!-- HTML -->
+<div id="chartdiv"></div>
+
+<!-- Chart code -->
+<script>
+//var chartData = generateChartData();
+function renderChart(chartData) {
+	var chart = AmCharts.makeChart("chartdiv", {
+	    "type": "serial",
+	    "theme": "light",
+	    "marginRight": 80,
+	    "autoMarginOffset": 20,
+	    "marginTop": 7,
+	    "legend": {
+	        "useGraphSettings": true,
+	        "valueFunction": function(graphDataItem, valueText) {
+	        	//return graphDataItem.dataContext[graphDataItem.graph.valueField];
+	        	if (graphDataItem.values) {
+	        		return graphDataItem.values.value;
+	        	} else {
+	        		return valueText;
+	        	}
+	        }
+	      },
+	    "dataProvider": chartData.data,
+	    "valueAxes": [{
+	        "axisAlpha": 0.2,
+	        "dashLength": 1,
+	        "position": "left"
+	    }],
+	    "mouseWheelZoomEnabled": true,
+	    "dataDateFormat": "YYYY-MM-DDTHH:NN:SSZ",
+	    "graphs": [
+	    {
+	        "id": chartData.filenames[0],
+	        "balloonText": "[[value]]",
+	        "legendValueText": "[[value]]",
+	        "bullet": "round",
+	        "bulletBorderAlpha": 1,
+	        "lineColor": "#0000FF",
+	        "bulletColor": "	#0000FF",
+	        "hideBulletsCount": 50,
+	        "title": chartData.filenames[0],
+	        "valueField": "visits1",
+	        "useLineColorForBulletBorder": true,
+	        "balloon":{
+	            "drop":false
+	        },
+	        "balloonFunction": function(graphDataItem, graph) {
+	            var value = graphDataItem.values.value;
+	            return value + "w";
+	          }
+	    },
+	    {
+	        "id": chartData.filenames[1],
+	        "balloonText": "[[value]]",
+	        "legendValueText": "[[value]]",
+	        "bullet": "round",
+	        "bulletBorderAlpha": 2,
+	        "lineColor": "#FF00FF",
+	        "bulletColor": "#FF00FF",
+	        "hideBulletsCount": 50,
+	        "title": chartData.filenames[1],
+	        "valueField": "visits2",
+	        "useLineColorForBulletBorder": true,
+	        "balloon":{
+	            "drop":false
+	        },
+            /*"balloon":{
+                "drop":true,
+                "adjustBorderColor":false,
+                "color":"#ffffff"
+            },*/
+	        "balloonFunction": function(graphDataItem, graph) {
+	            var value = graphDataItem.values.value;
+	            return value + "w";
+	          }
+	    }
+	    ],
+	    "chartScrollbar": {
+	        "autoGridCount": true,
+	        "graph": "g1",
+	        "scrollbarHeight": 40
+	    },
+	    "chartCursor": {
+	       "limitToGraph":"g1"
+	    },
+	    "categoryField": "date",
+	    "categoryAxis": {
+	        "parseDates": true,
+	        "axisColor": "#DADADA",
+	        "dashLength": 1,
+	        "minorGridEnabled": true,
+	        "minPeriod": "ss"
+	    },
+	    "export": {
+	        "enabled": true
+	    }
+	});
+
+	chart.addListener("rendered", zoomChart);
+	zoomChart(chart, chartData.data);
+}
+
+
+// this method is called when chart is first inited as we listen for "rendered" event
+function zoomChart(chart, chartData) {
+    // different zoom methods can be used - zoomToIndexes, zoomToDates, zoomToCategoryValues
+    chart.zoomToIndexes(chartData.length - 40, chartData.length - 1);
+}
+
+// generate some random data, quite different range
+/*
+function generateChartData() {
+    var chartData = [];
+    var firstDate = new Date();
+    firstDate.setDate(firstDate.getDate() - 5);
+    var visits = 1200;
+    var visits2 = 1000;
+    for (var i = 0; i < 1000; i++) {
+        // we create date objects here. In your data, you can have date strings
+        // and then set format of your dates using chart.dataDateFormat property,
+        // however when possible, use date objects, as this will speed up chart rendering.
+        var newDate = new Date(firstDate);
+        newDate.setDate(newDate.getDate() + i);
+        
+        visits += Math.round((Math.random()<0.5?1:-1)*Math.random()*10);
+        visits2 += Math.round((Math.random()<0.5?1:-1)*Math.random()*10);
+
+        chartData.push({
+            date: newDate,
+            visits: visits,
+            visits2: visits2,
+        });
+    }
+    return chartData;
+}
+*/
+
+//////////////// data request //////////////////////////
+var xmlhttp = new XMLHttpRequest();
+var url = "/amchart/data/1";
+
+xmlhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+        var data = JSON.parse(this.responseText);
+        var chartData = generateChartData(data);
+        renderChart(chartData);
+    }
+};
+xmlhttp.open("GET", url, true);
+xmlhttp.send();
+
+function generateChartData(data) {
+	var chartData = {};
+	chartData.data = [];
+	
+	chartData.filenames = data.filenames;
+    var out = "";
+    var i;
+    for(i = 0; i < data.chartData.length; i++) {
+    	var data1 = 0;
+    	var data2 = 0;
+    	if (data.chartData[i].datas[0]) {
+    		data1 = data.chartData[i].datas[0];
+    	}
+    	if (data.chartData[i].datas[1]) {
+    		data2 = data.chartData[i].datas[1];
+    	}
+        chartData.data.push({
+            //date: new Date(data.chartData[i].date),
+            //date: AmCharts.stringToDate(data.chartData[i].date, "YYYY-MM-DD JJ:NN:SS"),
+            date: data.chartData[i].date,
+            visits1: data1,
+            visits2: data2,
+        });
+    }
+    
+    return chartData;
+}
+</script>
+<div id="id01"></div>
+
+
+</body>
+</html>
+
