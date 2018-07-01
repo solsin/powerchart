@@ -245,8 +245,32 @@ function generateChartData(data) {
     
     return chartData;
 }
+
+function frmSubmit() {
+	console.log('test');
+	var frm = document.frm;
+	var url = "../generate/"+frm.chartId.value+"?"+frm.qryString.value;
+	
+	console.log(url);
+	
+	xmlhttp.onreadystatechange = function() {
+	    if (this.readyState == 4 && this.status == 200) {
+	        var data = JSON.parse(this.responseText);
+	        var chartData = generateChartData(data);
+	        renderChart(chartData);
+	    }
+	};
+	xmlhttp.open("GET", url, true);
+	xmlhttp.send();
+}
 </script>
-<div id="id01"></div>
+
+<form name="frm" action="../../generate/" th:action="'../generate/'+${chartId}">
+query string: <input type="text" name="qryString">
+
+<input type="hidden" name="chartId" th:value="${chartId}">
+<input type="button" value="generate" onClick="frmSubmit()">
+</form>
 
 
 </body>

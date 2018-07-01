@@ -28,6 +28,13 @@ public class LogExtractor {
 		calendar = Calendar.getInstance();
 	}
 	
+	private String getFilename(File file) {
+		String name = file.getName();
+		name = name.substring(0, (name.length() - ".tcx".length()));
+		
+		return name;
+	}
+	
 	public void addTimeAdjust(String key, int value) {
 		timeAdjust.put(key, value);
 	}
@@ -40,7 +47,8 @@ public class LogExtractor {
 		int index = 0;
 		
 		for (File file : files) {
- 			container.filenames.add(file.getName());
+			String name = getFilename(file);
+ 			container.filenames.add(name);
 			addDatasetFromLog(file, index, container);
 			index++;
 		}
@@ -57,7 +65,8 @@ public class LogExtractor {
 		doc.getDocumentElement().normalize();
 
 		NodeList nodeList = doc.getElementsByTagName("Trackpoint");
-		int adjusted = timeAdjust.get(file.getName()) == null ? 0 : timeAdjust.get(file.getName());
+		String name = getFilename(file);
+		int adjusted = timeAdjust.get(name) == null ? 0 : timeAdjust.get(name);
 		
 		for (int i = 0; i < nodeList.getLength(); i++) {
 			Node node = nodeList.item(i);

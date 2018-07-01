@@ -19,11 +19,7 @@ import dogani.powerchart.data.LogExtractor;
 public class AmChartController {
 	@RequestMapping(value = "/page/{chartId}")
 	public String page(@PathVariable("chartId") String chartId, Map<String, Object> model) throws Exception {
-		// LogExtractor extractor = new LogExtractor();
-		// ChartContainer container = extractor.extract(chartId);
-
 		model.put("chartId", chartId);
-		// model.put("chartCotainer", container);
 
 		return "amchart/page";
 	}
