@@ -41,7 +41,12 @@ public class LogExtractor {
 	
 	public ChartContainer extract(String folder) throws Exception {
 		ChartContainer container = new ChartContainer();
-		File dir = new File("C:/Develop/workspace/powerchart/data", folder);
+		File dataDir = new File(System.getProperty("user.dir"), "data");
+		if (!dataDir.exists()) {
+			log.warn("dataDir[{}] doesn't exist. create it.", dataDir);
+			dataDir.mkdir();
+		}
+		File dir = new File(dataDir, folder);
 		File[] files = dir.listFiles();
 		container.filenum = files.length;
 		int index = 0;

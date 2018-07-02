@@ -6,273 +6,356 @@
 <!-- Styles -->
 <style>
 #chartdiv {
-	width	: 100%;
-	height	: 500px;
-	marginTop : 220;
-}																	
+	width: 100%;
+	height: 500px;
+	marginTop: 220;
+}
 </style>
-<link rel="stylesheet" href="https://www.amcharts.com/lib/3/plugins/export/export.css" type="text/css" media="all" />
+<link rel="stylesheet"
+	href="https://www.amcharts.com/lib/3/plugins/export/export.css"
+	type="text/css" media="all" />
 
 </head>
 <body>
-<p th:text="'Power Chart For '+${chartId}"></p>
-	
-<!-- <img th:src="'/chart/render/'+${chartId}"/> -->
+	<p th:text="'Power Chart For '+${chartId}"></p>
 
-<!-- Resources -->
-<!-- 
+	<!-- <img th:src="'/chart/render/'+${chartId}"/> -->
+
+	<!-- Resources -->
+	<!-- 
 <script src="https://www.amcharts.com/lib/3/amcharts.js"></script>
 <script src="https://www.amcharts.com/lib/3/serial.js"></script>
 <script src="https://www.amcharts.com/lib/3/plugins/export/export.min.js"></script>
 <script src="https://www.amcharts.com/lib/3/themes/light.js"></script>
  -->
-<script src="/amcharts/amcharts.js"></script>
-<script src="/amcharts/serial.js"></script>
-<script src="/amcharts/plugins/export/export.min.js"></script>
-<script src="/amcharts/themes/light.js"></script>
-<!-- HTML -->
-<div id="chartdiv"></div>
+	<script src="/amcharts/amcharts.js"></script>
+	<script src="/amcharts/serial.js"></script>
+	<script src="/amcharts/plugins/export/export.min.js"></script>
+	<script src="/amcharts/themes/light.js"></script>
+	<!-- HTML -->
+	<div id="chartdiv"></div>
 
-<!-- Chart code -->
-<script>
-//var chartData = generateChartData();
-function renderChart(chartData) {
-	var chart = AmCharts.makeChart("chartdiv", {
-	    "type": "serial",
-	    "theme": "light",
-	    "marginRight": 80,
-	    "autoMarginOffset": 20,
-	    "marginTop": 7,
-	    "legend": {
-	        "useGraphSettings": true,
-	        "valueFunction": function(graphDataItem, valueText) {
-	        	//return graphDataItem.dataContext[graphDataItem.graph.valueField];
-	        	if (graphDataItem.values) {
-	        		return graphDataItem.values.value;
-	        	} else {
-	        		return valueText;
-	        	}
-	        }
-	      },
-	    "dataProvider": chartData.data,
-	    "valueAxes": [{
-	        "axisAlpha": 0.2,
-	        "dashLength": 1,
-	        "position": "left"
-	    }],
-	    "mouseWheelZoomEnabled": true,
-	    "dataDateFormat": "YYYY-MM-DDTHH:NN:SSZ",
-	    "graphs": [
-	    {
-	        "id": chartData.filenames[0],
-	        "balloonText": "[[value]]",
-	        "legendValueText": "[[value]]",
-	        "bullet": "round",
-	        "bulletBorderAlpha": 1,
-	        "lineColor": "#0000FF",
-	        "bulletColor": "	#0000FF",
-	        "hideBulletsCount": 50,
-	        "title": chartData.filenames[0],
-	        "valueField": "visits1",
-	        "useLineColorForBulletBorder": true,
-	        "balloon":{
-	            "drop":false
-	        },
-	        "balloonFunction": function(graphDataItem, graph) {
-	            var value = graphDataItem.values.value;
-	            return value + "w";
-	          }
-	    },
-	    {
-	        "id": chartData.filenames[1],
-	        "balloonText": "[[value]]",
-	        "legendValueText": "[[value]]",
-	        "bullet": "round",
-	        "bulletBorderAlpha": 2,
-	        "lineColor": "#FF00FF",
-	        "bulletColor": "#FF00FF",
-	        "hideBulletsCount": 50,
-	        "title": chartData.filenames[1],
-	        "valueField": "visits2",
-	        "useLineColorForBulletBorder": true,
-	        "balloon":{
-	            "drop":false
-	        },
-            /*"balloon":{
-                "drop":true,
-                "adjustBorderColor":false,
-                "color":"#ffffff"
-            },*/
-	        "balloonFunction": function(graphDataItem, graph) {
-	            var value = graphDataItem.values.value;
-	            return value + "w";
-	          }
-	    },
-	    {
-	        "id": chartData.filenames[2],
-	        "balloonText": "[[value]]",
-	        "legendValueText": "[[value]]",
-	        "bullet": "round",
-	        "bulletBorderAlpha": 2,
-	        "lineColor": "#FFA500",
-	        "bulletColor": "#FFA500",
-	        "hideBulletsCount": 50,
-	        "title": chartData.filenames[2],
-	        "valueField": "visits3",
-	        "useLineColorForBulletBorder": true,
-	        "balloon":{
-	            "drop":false
-	        },
-            /*"balloon":{
-                "drop":true,
-                "adjustBorderColor":false,
-                "color":"#ffffff"
-            },*/
-	        "balloonFunction": function(graphDataItem, graph) {
-	            var value = graphDataItem.values.value;
-	            return value + "w";
-	          }
-	    }
-	    ],
-	    "chartScrollbar": {
-	        "autoGridCount": true,
-	        "graph": "g1",
-	        "scrollbarHeight": 40
-	    },
-	    "chartCursor": {
-	       "limitToGraph":"g1"
-	    },
-	    "categoryField": "date",
-	    "categoryAxis": {
-	        "parseDates": true,
-	        "axisColor": "#DADADA",
-	        "dashLength": 1,
-	        "minorGridEnabled": true,
-	        "minPeriod": "ss"
-	    },
-	    "export": {
-	        "enabled": true
-	    }
-	});
-
-	chart.addListener("rendered", zoomChart);
-	zoomChart(chart, chartData.data);
-}
-
-
-// this method is called when chart is first inited as we listen for "rendered" event
-function zoomChart(chart, chartData) {
-    // different zoom methods can be used - zoomToIndexes, zoomToDates, zoomToCategoryValues
-    if (chartData) {
-    	chart.zoomToIndexes(chartData.length - 40, chartData.length - 1);
-    } else {
-    	console.log("chartData is undefined");
+	<!-- Chart code -->
+	<script>
+    function labelFunction(item, text) {
+      if (text == "total") {
+        var index = item.index;
+        var serialDataItem = chart.chartData[index];
+        var valueAxes = serialDataItem.axes;
+        var sum = 0;
+        for ( var a in valueAxes) {
+          var graphs = valueAxes[a].graphs;
+          for ( var g in graphs) {
+            var graph = graphs[g];
+            if (!graph.graph.hidden) {
+              sum += graph.values.value;
+            }
+          }
+        }
+        return AmCharts.roundTo(sum, 5);
+      }
     }
-    
-}
 
-// generate some random data, quite different range
-/*
-function generateChartData() {
-    var chartData = [];
-    var firstDate = new Date();
-    firstDate.setDate(firstDate.getDate() - 5);
-    var visits = 1200;
-    var visits2 = 1000;
-    for (var i = 0; i < 1000; i++) {
-        // we create date objects here. In your data, you can have date strings
-        // and then set format of your dates using chart.dataDateFormat property,
-        // however when possible, use date objects, as this will speed up chart rendering.
-        var newDate = new Date(firstDate);
-        newDate.setDate(newDate.getDate() + i);
+    //var chartData = generateChartData();
+    function renderChart(chartData) {
+      var chart = AmCharts.makeChart("chartdiv", {
+        "type" : "serial",
+        "theme" : "light",
+        "marginRight" : 80,
+        "autoMarginOffset" : 20,
+        "marginTop" : 7,
+        "legend" : {
+          "useGraphSettings" : true,
+          "valueFunction" : function(graphDataItem, valueText) {
+            //return graphDataItem.dataContext[graphDataItem.graph.valueField];
+            
+            if (graphDataItem.values) {
+              return graphDataItem.values.value;
+            } else {
+              return valueText;
+            }
+          }
+        },
+        "dataProvider" : chartData.data,
+        "valueAxes" : [ {
+          "axisAlpha" : 0.2,
+          "dashLength" : 1,
+          "position" : "left"
+        } ],
+        "mouseWheelZoomEnabled" : true,
+        "dataDateFormat" : "YYYY-MM-DDTHH:NN:SSZ",
+        "graphs" : [ {
+          "id" : chartData.filenames[0],
+          "balloonText" : "[[value]]",
+          "legendValueText" : "[[value]]",
+          "bullet" : "round",
+          "bulletBorderAlpha" : 1,
+          "lineColor" : "#0000FF",
+          "bulletColor" : "	#0000FF",
+          "hideBulletsCount" : 50,
+          "title" : chartData.filenames[0],
+          "valueField" : chartData.filenames[0],
+          "useLineColorForBulletBorder" : true,
+          "balloon" : {
+            "drop" : false
+          },
+          "balloonFunction" : function(graphDataItem, graph) {
+            var value = graphDataItem.values.value;
+            return value + "w";
+          }
+        }, {
+          "id" : chartData.filenames[1],
+          "balloonText" : "[[value]]",
+          "legendValueText" : "[[value]]",
+          "bullet" : "round",
+          "bulletBorderAlpha" : 2,
+          "lineColor" : "#FF00FF",
+          "bulletColor" : "#FF00FF",
+          "hideBulletsCount" : 50,
+          "title" : chartData.filenames[1],
+          "valueField" : chartData.filenames[1],
+          "useLineColorForBulletBorder" : true,
+          "balloon" : {
+            "drop" : false
+          },
+          /*"balloon":{
+              "drop":true,
+              "adjustBorderColor":false,
+              "color":"#ffffff"
+          },*/
+          "balloonFunction" : function(graphDataItem, graph) {
+            var value = graphDataItem.values.value;
+            return value + "w";
+          }
+        }, {
+          "id" : chartData.filenames[2],
+          "balloonText" : "[[value]]",
+          "legendValueText" : "[[value]]",
+          "bullet" : "round",
+          "bulletBorderAlpha" : 2,
+          "lineColor" : "#FFA500",
+          "bulletColor" : "#FFA500",
+          "hideBulletsCount" : 50,
+          "title" : chartData.filenames[2],
+          "valueField" : chartData.filenames[2],
+          "useLineColorForBulletBorder" : true,
+          "balloon" : {
+            "drop" : false
+          },
+          /*"balloon":{
+              "drop":true,
+              "adjustBorderColor":false,
+              "color":"#ffffff"
+          },*/
+          "balloonFunction" : function(graphDataItem, graph) {
+            var value = graphDataItem.values.value;
+            return value + "w";
+          }
+        } ],
+        "chartScrollbar" : {
+          "autoGridCount" : true,
+          "graph" : "g1",
+          "scrollbarHeight" : 40
+        },
+        "chartCursor" : {
+          "limitToGraph" : "g1"
+        },
+        "categoryField" : "date",
+        "categoryAxis" : {
+          "parseDates" : true,
+          "axisColor" : "#DADADA",
+          "dashLength" : 1,
+          "minorGridEnabled" : true,
+          "minPeriod" : "ss"
+        },
+        "export" : {
+          "enabled" : true
+        },
+        "listeners": [
+        /*
+        {
+          
+          "event": "rendered",
+          "method": function(e) {
+            // set up generic mouse events
+            var sb = e.chart.chartScrollbar.set.node;
+            sb.addEventListener("mousedown", function() {
+              e.chart.mouseIsDown = true;
+            });
+            e.chart.chartDiv.addEventListener("mouseup", function() {
+              e.chart.mouseIsDown = false;
+              // zoomed finished
+              console.log("zoom finished", e.chart.lastZoomed);
+            });
+          }
+		},
+		*/
+		{
+          "event": "zoomed",
+          "method": function(e) {
+            // powerSummary.id : name
+            // powerSummary.sum = total sum
+            // powerSummary.num = total number
+            // powerSummary.avg = average
+            var chartData = e.chart.chartData;
+            var graphs = e.chart.graphs;
+            var graphTarget = new Array();
+            for(i=0; i<graphs.length; i++) {
+              var obj = {};
+              obj["id"] = graphs[i]["id"];
+              obj["sum"] = 0;
+              obj["num"] = 0;
+              obj["avg"] = function() {
+                var avg = this.sum / this.num;
+                console.log(this.id+" avg value:"+avg);
+                return Math.round(avg);
+              }
+              graphTarget.push(obj);
+            }
+            
+            for(i=e.startIndex; i<e.endIndex; i++) {
+              var data = e.chart.chartData[i];
+              for(j=0; j<graphTarget.length; j++) {
+                var target = graphTarget[j];
+                target.sum += data.dataContext[target.id];
+                target.num++;
+              }
+            }
+            console.log(graphTarget);
+            e.chart.lastZoomed = e;
+            //console.log("ignoring zoomed");
+            
+            var text = "";
+            for (i=0; i<graphTarget.length; i++) {
+              text += graphTarget[i].id +":"+graphTarget[i].avg()+"watt<br>";
+            }
+            document.getElementById("sum").innerHTML = text;
+          }
+        }]
+      });
+
+      chart.addListener("rendered", zoomChart);
+      zoomChart(chart, chartData.data);
+    }
+
+    // this method is called when chart is first inited as we listen for "rendered" event
+    function zoomChart(chart, chartData) {
+      // different zoom methods can be used - zoomToIndexes, zoomToDates, zoomToCategoryValues
+      if (chartData) {
+        chart.zoomToIndexes(chartData.length - 40, chartData.length - 1);
+      } else {
+        console.log("chartData is undefined");
+      }
+
+    }
+
+    // generate some random data, quite different range
+    /*
+     function generateChartData() {
+     var chartData = [];
+     var firstDate = new Date();
+     firstDate.setDate(firstDate.getDate() - 5);
+     var visits = 1200;
+     var visits2 = 1000;
+     for (var i = 0; i < 1000; i++) {
+     // we create date objects here. In your data, you can have date strings
+     // and then set format of your dates using chart.dataDateFormat property,
+     // however when possible, use date objects, as this will speed up chart rendering.
+     var newDate = new Date(firstDate);
+     newDate.setDate(newDate.getDate() + i);
+    
+     visits += Math.round((Math.random()<0.5?1:-1)*Math.random()*10);
+     visits2 += Math.round((Math.random()<0.5?1:-1)*Math.random()*10);
+
+     chartData.push({
+     date: newDate,
+     visits: visits,
+     visits2: visits2,
+     });
+     }
+     return chartData;
+     }
+     */
+
+    //////////////// data request //////////////////////////
+    //     var xmlhttp = new XMLHttpRequest();
+    //     var url = "/amchart/data/1";
+    //     xmlhttp.onreadystatechange = function() {
+    //       if (this.readyState == 4 && this.status == 200) {
+    //         var data = JSON.parse(this.responseText);
+    //         var chartData = generateChartData(data);
+    //         renderChart(chartData);
+    //       }
+    //     };
+    //     xmlhttp.open("GET", url, true);
+    //     xmlhttp.send();
+    function generateChartData(data) {
+      var chartData = {};
+      chartData.data = [];
+
+      chartData.filenames = data.filenames;
+      var out = "";
+      var i;
+      for (i = 0; i < data.chartData.length; i++) {
+        var data1 = 0;
+        var data2 = 0;
+        var data3 = 0;
+        var name0 = data.filenames[0];
+        var name1 = data.filenames[0];
+        var name2 = data.filenames[0];
         
-        visits += Math.round((Math.random()<0.5?1:-1)*Math.random()*10);
-        visits2 += Math.round((Math.random()<0.5?1:-1)*Math.random()*10);
+        if (data.chartData[i].datas[0]) {
+          data1 = data.chartData[i].datas[0];
+        }
+        if (data.chartData[i].datas[1]) {
+          data2 = data.chartData[i].datas[1];
+        }
+        if (data.chartData[i].datas[2]) {
+          data3 = data.chartData[i].datas[2];
+        }
+        
+        var obj = {};
+        obj["date"] = data.chartData[i].date;
+        obj[data.filenames[0]] = data1;
+        obj[data.filenames[1]] = data2;
+        obj[data.filenames[2]] = data3;
+        chartData.data.push(obj);
+      }
 
-        chartData.push({
-            date: newDate,
-            visits: visits,
-            visits2: visits2,
-        });
+      return chartData;
     }
-    return chartData;
-}
-*/
 
-//////////////// data request //////////////////////////
-var xmlhttp = new XMLHttpRequest();
-var url = "/amchart/data/1";
+    function frmSubmit() {
+      console.log('test');
+      var frm = document.frm;
+      var url = "../generate/" + frm.chartId.value + "?" + frm.qryString.value;
 
-xmlhttp.onreadystatechange = function() {
-    if (this.readyState == 4 && this.status == 200) {
-        var data = JSON.parse(this.responseText);
-        var chartData = generateChartData(data);
-        renderChart(chartData);
+      console.log(url);
+
+      var xmlhttp = new XMLHttpRequest();
+      xmlhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+          var data = JSON.parse(this.responseText);
+          var chartData = generateChartData(data);
+          renderChart(chartData);
+        }
+      };
+      xmlhttp.open("GET", url, true);
+      xmlhttp.send();
     }
-};
-xmlhttp.open("GET", url, true);
-xmlhttp.send();
 
-function generateChartData(data) {
-	var chartData = {};
-	chartData.data = [];
-	
-	chartData.filenames = data.filenames;
-    var out = "";
-    var i;
-    for(i = 0; i < data.chartData.length; i++) {
-    	var data1 = 0;
-    	var data2 = 0;
-    	var data3 = 0;
-    	if (data.chartData[i].datas[0]) {
-    		data1 = data.chartData[i].datas[0];
-    	}
-    	if (data.chartData[i].datas[1]) {
-    		data2 = data.chartData[i].datas[1];
-    	}
-    	if (data.chartData[i].datas[2]) {
-    		data3 = data.chartData[i].datas[2];
-    	}
-        chartData.data.push({
-            //date: new Date(data.chartData[i].date),
-            //date: AmCharts.stringToDate(data.chartData[i].date, "YYYY-MM-DD JJ:NN:SS"),
-            date: data.chartData[i].date,
-            visits1: data1,
-            visits2: data2,
-            visits3: data3,
-        });
-    }
-    
-    return chartData;
-}
+    document.addEventListener('DOMContentLoaded', function() {
+      frmSubmit();
+    }, false);
+  </script>
+<div id="sum"></div>
 
-function frmSubmit() {
-	console.log('test');
-	var frm = document.frm;
-	var url = "../generate/"+frm.chartId.value+"?"+frm.qryString.value;
-	
-	console.log(url);
-	
-	xmlhttp.onreadystatechange = function() {
-	    if (this.readyState == 4 && this.status == 200) {
-	        var data = JSON.parse(this.responseText);
-	        var chartData = generateChartData(data);
-	        renderChart(chartData);
-	    }
-	};
-	xmlhttp.open("GET", url, true);
-	xmlhttp.send();
-}
-</script>
-
-<form name="frm" action="../../generate/" th:action="'../generate/'+${chartId}">
-query string: <input type="text" name="qryString">
-
-<input type="hidden" name="chartId" th:value="${chartId}">
-<input type="button" value="generate" onClick="frmSubmit()">
+<form name="frm" action="../../generate/"
+	th:action="'../generate/'+${chartId}">
+	query string: <input type="text" name="qryString"> <input
+		type="hidden" name="chartId" th:value="${chartId}"> <input
+		type="button" value="generate" onClick="frmSubmit()">
 </form>
-
-
 </body>
 </html>
 
